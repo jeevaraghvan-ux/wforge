@@ -6,6 +6,9 @@ import {
   signUpWithFirebaseEmail,
   signInWithFirebaseEmail,
   sendFirebasePasswordReset,
+  handleFirebaseEmailVerification,
+  verifyFirebaseResetCode,
+  confirmFirebasePasswordReset,
   isFirebaseConfigured, 
   updateFirebaseConfig, 
   firebaseConfig 
@@ -38,7 +41,7 @@ export const AccountModal = () => {
     handlePreorder
   } = useStore();
 
-  const [mode, setMode] = useState('signin'); // 'signin', 'signup', 'forgot-password', 'verify-code', 'verify-forgot'
+  const [mode, setMode] = useState('signin'); // 'signin', 'signup', 'forgot-password', 'verify-code', 'verify-forgot', 'firebase-reset-password', 'firebase-verify-email'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -48,9 +51,47 @@ export const AccountModal = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState('');
   const [authSuccess, setAuthSuccess] = useState('');
+  const [firebaseActionCode, setFirebaseActionCode] = useState('');
+  const [resetEmailTarget, setResetEmailTarget] = useState('');
   const [showFirebaseConfig, setShowFirebaseConfig] = useState(false);
   const [firebaseJsonInput, setFirebaseJsonInput] = useState('');
   const [isFirebaseConfiguredState, setIsFirebaseConfiguredState] = useState(isFirebaseConfigured());
+
+  // Listen for Firebase action query parameters in URL (mode=resetPassword / mode=verifyEmail)
+  React.useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const actionMode = params.get('mode');
+      const oobCode = params.get('oobCode');
+
+      if (actionMode && oobCode) {
+        setIsAuthModalOpen(true);
+        setFirebaseActionCode(oobCode);
+
+        if (actionMode === 'verifyEmail') {
+          setMode('firebase-verify-email');
+          handleFirebaseEmailVerification(oobCode)
+            .then(() => {
+              setAuthSuccess('Your email has been successfully verified by Firebase! You can now sign in.');
+            })
+            .catch((err) => {
+              setAuthError(err.message || 'Verification link expired or invalid.');
+            });
+        } else if (actionMode === 'resetPassword') {
+          setMode('firebase-reset-password');
+          verifyFirebaseResetCode(oobCode)
+            .then((targetEmail) => {
+              setResetEmailTarget(targetEmail);
+            })
+            .catch((err) => {
+              setAuthError(err.message || 'Password reset link expired or invalid.');
+            });
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, []);
 
   if (!isAuthModalOpen) return null;
 
@@ -297,6 +338,27 @@ export const AccountModal = () => {
     setAuthSuccess(`Reset code dispatched to ${email}!`);
   };
 
+  const handleConfirmFirebasePasswordReset = async (e) => {
+    e.preventDefault();
+    setAuthError('');
+    if (!newPassword || newPassword.length < 6) {
+      setAuthError('New password must be at least 6 characters.');
+      return;
+    }
+
+    try {
+      await confirmFirebasePasswordReset(firebaseActionCode, newPassword);
+      setAuthSuccess('Password has been successfully changed in Firebase! You can now sign in.');
+      setTimeout(() => {
+        setMode('signin');
+        // Clean URL query parameters
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }, 2000);
+    } catch (err) {
+      setAuthError(err.message || 'Failed to update password. Code may have expired.');
+    }
+  };
+
   const handleResetPasswordFinal = (e) => {
     e.preventDefault();
     if (verificationCodeInput.trim() === generatedCode.trim() || verificationCodeInput.trim() === '9248') {
@@ -345,7 +407,113 @@ export const AccountModal = () => {
           <X className="w-5 h-5" />
         </button>
 
-        {mode === 'verify-code' || mode === 'verify-forgot' ? (
+        {mode === 'firebase-verify-email' ? (
+          /* FIREBASE EMAIL VERIFIED CONFIRMATION SCREEN */
+          <div className="space-y-5 text-center">
+            <div className="w-16 h-16 rounded-3xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-300 mx-auto shadow-glass-glow">
+              <CheckCircle2 className="w-8 h-8 animate-bounce" />
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-xl font-bold font-display text-white">
+                Email Address Verified!
+              </h2>
+              <p className="text-xs text-slate-300">
+                Your email has been officially verified by Firebase Authentication. Your W Forge account is now active and ready for preorders!
+              </p>
+            </div>
+
+            {authError ? (
+              <div className="text-xs text-rose-400 bg-rose-500/10 p-2.5 rounded-xl border border-rose-500/20">
+                {authError}
+              </div>
+            ) : (
+              <div className="p-3 rounded-2xl bg-emerald-500/15 border border-emerald-400/30 text-emerald-200 text-xs font-semibold">
+                ✓ Identity Confirmed • +100 Maker Points Active
+              </div>
+            )}
+
+            <button
+              onClick={() => {
+                setMode('signin');
+                window.history.replaceState({}, document.title, window.location.pathname);
+              }}
+              className="w-full py-2.5 rounded-xl glass-btn-primary text-white text-xs font-bold"
+            >
+              Continue to Sign In
+            </button>
+          </div>
+        ) : mode === 'firebase-reset-password' ? (
+          /* FIREBASE RESET PASSWORD SCREEN */
+          <div className="space-y-5">
+            <div className="text-center space-y-2">
+              <Key className="w-10 h-10 text-cyan-400 mx-auto" />
+              <h2 className="text-xl font-bold font-display text-white">
+                Choose New Password
+              </h2>
+              <p className="text-xs text-slate-300">
+                Resetting password for <span className="font-semibold text-white">{resetEmailTarget || 'your W Forge account'}</span>.
+              </p>
+            </div>
+
+            <form onSubmit={handleConfirmFirebasePasswordReset} className="space-y-4">
+              <div>
+                <label className="text-xs font-semibold text-slate-300 block mb-1">
+                  New Password (Min. 6 characters)
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    minLength={6}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Enter strong new password..."
+                    className="glass-input rounded-xl px-3 py-2 text-xs w-full pr-9"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                  >
+                    {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+              </div>
+
+              {authError && (
+                <div className="text-xs text-rose-400 bg-rose-500/10 p-2.5 rounded-xl border border-rose-500/20">
+                  {authError}
+                </div>
+              )}
+
+              {authSuccess && (
+                <div className="text-xs text-emerald-300 bg-emerald-500/10 p-2.5 rounded-xl border border-emerald-500/20">
+                  {authSuccess}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                className="w-full py-2.5 rounded-xl glass-btn-primary text-white text-xs font-bold"
+              >
+                Save New Password
+              </button>
+
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode('signin');
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                  }}
+                  className="text-xs text-slate-400 hover:text-white"
+                >
+                  ← Cancel & return to sign in
+                </button>
+              </div>
+            </form>
+          </div>
+        ) : mode === 'verify-code' || mode === 'verify-forgot' ? (
           /* VERIFICATION CODE SCREEN WITH REQUIRED GLASS SPAM BANNER */
           <div className="space-y-5">
             <div className="text-center space-y-2">

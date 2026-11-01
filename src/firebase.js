@@ -7,6 +7,9 @@ import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
   sendPasswordResetEmail,
+  applyActionCode,
+  verifyPasswordResetCode,
+  confirmPasswordReset,
   signOut,
   updateProfile
 } from "firebase/auth";
@@ -132,6 +135,30 @@ export const resendFirebaseVerification = async () => {
     return await sendEmailVerification(auth.currentUser);
   }
   throw new Error("No active user to send verification to.");
+};
+
+// Handle incoming Firebase email verification action code
+export const handleFirebaseEmailVerification = async (oobCode) => {
+  if (!isFirebaseConfigured() || !auth) {
+    throw new Error("FIREBASE_NOT_CONFIGURED");
+  }
+  return await applyActionCode(auth, oobCode);
+};
+
+// Verify password reset code and return the associated email
+export const verifyFirebaseResetCode = async (oobCode) => {
+  if (!isFirebaseConfigured() || !auth) {
+    throw new Error("FIREBASE_NOT_CONFIGURED");
+  }
+  return await verifyPasswordResetCode(auth, oobCode);
+};
+
+// Confirm new password using the reset action code
+export const confirmFirebasePasswordReset = async (oobCode, newPassword) => {
+  if (!isFirebaseConfigured() || !auth) {
+    throw new Error("FIREBASE_NOT_CONFIGURED");
+  }
+  return await confirmPasswordReset(auth, oobCode, newPassword);
 };
 
 // Sign out from Firebase

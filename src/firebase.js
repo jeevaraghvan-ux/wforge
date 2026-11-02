@@ -25,13 +25,13 @@ const getInitialConfig = () => {
     // ignore
   }
   return {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyB_gJMY4Po16ldRG7ALH-Cuqz90T6kmieM",
-    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "wforge-9895f.firebaseapp.com",
-    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "wforge-9895f",
-    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "wforge-9895f.firebasestorage.app",
-    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "397064212160",
-    appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:397064212160:web:cc057807252f7375492725",
-    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-TFSMTHTF69"
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyAj_CpNR7jkL9opSfsQ-MaHZUIsdn5XhyM",
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "wforge-5d281.firebaseapp.com",
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "wforge-5d281",
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "wforge-5d281.firebasestorage.app",
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "706480287118",
+    appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:706480287118:web:3931d7bca870086a1048df",
+    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || ""
   };
 };
 

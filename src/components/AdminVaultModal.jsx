@@ -102,7 +102,7 @@ export const AdminVaultModal = () => {
       setUnlockError('');
       setEnteredPassword('');
     } else {
-      setUnlockError('Access Denied: Invalid Master Admin Password. (Hint: 9248 or WF0RG3-ADMIN)');
+      setUnlockError('Access Denied: Invalid Master Admin Password.');
     }
   };
 
@@ -305,7 +305,7 @@ export const AdminVaultModal = () => {
             <div className="space-y-2">
               <h2 className="text-2xl font-bold font-display text-white">Admin Vault Passcode Required</h2>
               <p className="text-xs text-slate-300">
-                Authorized 5th grade lab admins only. Enter either Password 1 or Password 2 (e.g. <span className="font-mono text-cyan-300 font-bold">9248</span> or <span className="font-mono text-cyan-300 font-bold">WF0RG3-ADMIN</span>).
+                Authorized 5th grade lab admins only. Enter the master admin password to unlock.
               </p>
             </div>
 

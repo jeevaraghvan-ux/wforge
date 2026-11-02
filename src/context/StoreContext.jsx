@@ -3,143 +3,11 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const StoreContext = createContext();
 
 // Initial sample data for 5th grade 3D printing business
-const INITIAL_USERS = [
-  { id: 'user-1', name: 'Alex Rivera', email: 'alex.rivera@school.edu', points: 150, verified: true, role: 'student', credits: 45 },
-  { id: 'user-2', name: 'Maya Lin', email: 'maya.lin@school.edu', points: 220, verified: true, role: 'student', credits: 80 },
-  { id: 'user-3', name: 'Sammy Chen', email: 'sammy.c@school.edu', points: 90, verified: true, role: 'student', credits: 25 },
-  { id: 'user-4', name: 'Jeeva Maker', email: 'WForge10@gmail.com', points: 500, verified: true, role: 'admin', credits: 350 },
-  { id: 'user-5', name: 'Jordan Taylor', email: 'jordan.t@school.edu', points: 60, verified: true, role: 'student', credits: 15 }
-];
-
-const INITIAL_CREDIT_BANKS = [
-  { id: 'bank-1', name: '5th Grade Treasury', balance: 520, description: 'Classroom 3D project materials fund' },
-  { id: 'bank-2', name: 'STEM Makerspace Pool', balance: 340, description: 'Filament sponsorship & donations' },
-  { id: 'bank-3', name: 'Student Rewards Bank', balance: 215, description: 'Points exchange & printer credits' }
-];
-
-const INITIAL_RANKINGS = [
-  { id: 'rank-1', name: 'Maya Lin (Lead Designer)', credits: 80, email: 'maya.lin@school.edu', badge: '🥇 Master Modeler' },
-  { id: 'rank-2', name: 'Alex Rivera (Print Tech)', credits: 45, email: 'alex.rivera@school.edu', badge: '🥈 Slicer Pro' },
-  { id: 'rank-3', name: 'Sammy Chen (Filament Guru)', credits: 25, email: 'sammy.c@school.edu', badge: '🥉 Spool Hero' },
-  { id: 'rank-4', name: 'Jordan Taylor (Junior Maker)', credits: 15, email: 'jordan.t@school.edu', badge: '⭐ Apprentice' }
-];
-
-const INITIAL_LISTINGS = [
-  {
-    id: 'prod-1',
-    title: 'Articulated Flexi Crystal Dragon',
-    description: 'Ultra-flexible dual-color silk PLA fidget dragon. Prints smoothly with interlocking joints right off the print bed!',
-    price: 4.50,
-    creditCost: 45,
-    image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80',
-    inStock: true,
-    isSeasonal: false,
-    rating: 5.0,
-    printTime: '2.5 hrs',
-    material: 'Non-toxic Silk PLA',
-    reviews: [
-      { id: 'rev-1', author: 'Maya Lin', email: 'maya.lin@school.edu', rating: 5, comment: 'The joints move so smoothly! Best desk toy ever.', date: '2026-10-28' },
-      { id: 'rev-2', author: 'Alex Rivera', email: 'alex.rivera@school.edu', rating: 5, comment: 'Clean layer lines, no stringing at all.', date: '2026-10-29' }
-    ]
-  },
-  {
-    id: 'prod-2',
-    title: 'Precision Fidget Gear Cube',
-    description: 'Satisfying mechanical interlocking gears that twist infinitely in your hand. School-safe quiet fidget.',
-    price: 3.00,
-    creditCost: 30,
-    image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
-    inStock: true,
-    isSeasonal: false,
-    rating: 4.8,
-    printTime: '1.8 hrs',
-    material: 'Eco PLA - Neon Teal',
-    reviews: [
-      { id: 'rev-3', author: 'Sammy Chen', email: 'sammy.c@school.edu', rating: 5, comment: 'Super quiet during class reading time.', date: '2026-10-30' }
-    ]
-  },
-  {
-    id: 'prod-3',
-    title: 'Halloween Glow Pumpkin Jack-o-Lantern',
-    description: 'Limited seasonal run! Glow-in-the-dark filament with removable lid to place an LED tea light inside.',
-    price: 5.00,
-    creditCost: 50,
-    image: 'https://images.unsplash.com/photo-1508746829417-e6f548d8d6ed?auto=format&fit=crop&w=800&q=80',
-    inStock: true,
-    isSeasonal: true,
-    rating: 4.9,
-    printTime: '3.0 hrs',
-    material: 'Glow-in-the-Dark Green PLA',
-    reviews: [
-      { id: 'rev-4', author: 'Jordan Taylor', email: 'jordan.t@school.edu', rating: 5, comment: 'Glows super bright under blacklight!', date: '2026-10-31' }
-    ]
-  },
-  {
-    id: 'prod-4',
-    title: 'Personalized Backpack Name Keychain',
-    description: 'Custom embossed 3D tag with your name and favorite school icon. Durable 100% infill loop.',
-    price: 2.50,
-    creditCost: 25,
-    image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80',
-    inStock: false,
-    isSeasonal: false,
-    rating: 4.7,
-    printTime: '45 mins',
-    material: 'High-Strength Tough PLA',
-    reviews: []
-  }
-];
-
-const INITIAL_ORDERS = [
-  {
-    id: 'ORD-501',
-    userEmail: 'alex.rivera@school.edu',
-    userName: 'Alex Rivera',
-    itemTitle: 'Articulated Flexi Crystal Dragon',
-    quantity: 1,
-    originalPrice: 4.50,
-    pointsUsed: 50,
-    discountAmount: 0.50,
-    finalPrice: 4.00,
-    totalPrice: 4.00,
-    status: 'Ready for Pickup',
-    orderDate: '2026-10-30',
-    pointsEarned: 45,
-    notes: 'Points redeemed: 50 pts (-$0.50). Silk Blue finish requested'
-  },
-  {
-    id: 'ORD-502',
-    userEmail: 'maya.lin@school.edu',
-    userName: 'Maya Lin',
-    itemTitle: 'Precision Fidget Gear Cube',
-    quantity: 2,
-    originalPrice: 6.00,
-    pointsUsed: 100,
-    discountAmount: 1.00,
-    finalPrice: 5.00,
-    totalPrice: 5.00,
-    status: 'Printing',
-    orderDate: '2026-10-31',
-    pointsEarned: 60,
-    notes: 'Points redeemed: 100 pts (-$1.00). Neon Teal & Purple gears'
-  },
-  {
-    id: 'ORD-503',
-    userEmail: 'sammy.c@school.edu',
-    userName: 'Sammy Chen',
-    itemTitle: 'Halloween Glow Pumpkin Jack-o-Lantern',
-    quantity: 1,
-    originalPrice: 5.00,
-    pointsUsed: 0,
-    discountAmount: 0.00,
-    finalPrice: 5.00,
-    totalPrice: 5.00,
-    status: 'Delivered',
-    orderDate: '2026-10-27',
-    pointsEarned: 30,
-    notes: 'Delivered to Homeroom 5B'
-  }
-];
+const INITIAL_USERS = [];
+const INITIAL_CREDIT_BANKS = [];
+const INITIAL_RANKINGS = [];
+const INITIAL_LISTINGS = [];
+const INITIAL_ORDERS = [];
 
 export const StoreProvider = ({ children }) => {
   // Home title configurable from Vault
@@ -152,7 +20,7 @@ export const StoreProvider = ({ children }) => {
     return localStorage.getItem('wforge_vault_bg') || '';
   });
 
-  // Dual passwords for Vault / Admin Vault
+  // Dual passwords for Vault / Admin Vault (kept private, never exposed in UI)
   const [adminPasswords, setAdminPasswords] = useState(() => {
     const saved = localStorage.getItem('wforge_admin_passwords');
     return saved ? JSON.parse(saved) : ['9248', 'WF0RG3-ADMIN'];
@@ -165,44 +33,102 @@ export const StoreProvider = ({ children }) => {
   // Active user / auth state
   const [currentUser, setCurrentUser] = useState(() => {
     const saved = localStorage.getItem('wforge_current_user');
-    return saved ? JSON.parse(saved) : null;
+    if (saved) {
+      try {
+        const u = JSON.parse(saved);
+        if (u.email === 'WForge10@gmail.com' && u.points === 500) {
+          return null;
+        }
+        return u;
+      } catch (e) {}
+    }
+    return null;
   });
 
-  // Users list
+  // Users list (clean slate)
   const [users, setUsers] = useState(() => {
     const saved = localStorage.getItem('wforge_users');
-    return saved ? JSON.parse(saved) : INITIAL_USERS;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.some(u => u.email === 'alex.rivera@school.edu')) {
+          localStorage.removeItem('wforge_users');
+          return [];
+        }
+        return parsed;
+      } catch (e) {}
+    }
+    return [];
   });
 
-  // Credit banks
+  // Credit banks (clean slate)
   const [creditBanks, setCreditBanks] = useState(() => {
     const saved = localStorage.getItem('wforge_credit_banks');
-    return saved ? JSON.parse(saved) : INITIAL_CREDIT_BANKS;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.some(b => b.name === '5th Grade Treasury')) {
+          localStorage.removeItem('wforge_credit_banks');
+          return [];
+        }
+        return parsed;
+      } catch (e) {}
+    }
+    return [];
   });
 
-  // Rankings (drag and drop in admin vault)
+  // Rankings (clean slate)
   const [rankings, setRankings] = useState(() => {
     const saved = localStorage.getItem('wforge_rankings');
-    return saved ? JSON.parse(saved) : INITIAL_RANKINGS;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.some(r => r.name?.includes('Maya Lin'))) {
+          localStorage.removeItem('wforge_rankings');
+          return [];
+        }
+        return parsed;
+      } catch (e) {}
+    }
+    return [];
   });
 
-  // Listings (no automatic listings, only admin adds them)
+  // Listings (clean slate)
   const [listings, setListings] = useState(() => {
     const saved = localStorage.getItem('wforge_listings');
-    return saved ? JSON.parse(saved) : INITIAL_LISTINGS;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.some(p => p.id === 'prod-1' || p.title?.includes('Dragon'))) {
+          localStorage.removeItem('wforge_listings');
+          return [];
+        }
+        return parsed;
+      } catch (e) {}
+    }
+    return [];
   });
 
-  // Orders
+  // Orders (clean slate)
   const [orders, setOrders] = useState(() => {
     const saved = localStorage.getItem('wforge_orders');
-    return saved ? JSON.parse(saved) : INITIAL_ORDERS;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.some(o => o.id === 'ORD-501')) {
+          localStorage.removeItem('wforge_orders');
+          return [];
+        }
+        return parsed;
+      } catch (e) {}
+    }
+    return [];
   });
 
-  // Custom Bot Codes (configurable in Admin Vault)
+  // Custom Bot Codes (configurable in Admin Vault) - 9248 removed so it is never exposed
   const [botCustomCodes, setBotCustomCodes] = useState(() => {
     const saved = localStorage.getItem('wforge_bot_codes');
     return saved ? JSON.parse(saved) : [
-      { code: '9248', description: 'Master Unlock Code (Activates 5th Grade Maker Overdrive)', rewardPoints: 50 },
       { code: 'FILAMENT5', description: '5% student discount token', rewardPoints: 10 },
       { code: 'MAKER5TH', description: 'Welcome pack bonus', rewardPoints: 20 }
     ];

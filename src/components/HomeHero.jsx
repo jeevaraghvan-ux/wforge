@@ -139,86 +139,96 @@ export const HomeHero = () => {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {featuredProducts.map((product) => (
-            <div
-              key={product.id}
-              className="liquid-glass-card rounded-2xl overflow-hidden flex flex-col group border border-white/15"
-            >
-              {/* Product Image preview */}
-              <div className="relative h-48 w-full overflow-hidden bg-slate-900">
-                <img
-                  src={product.image}
-                  alt={product.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+        {featuredProducts.length === 0 ? (
+          <div className="liquid-glass p-10 rounded-2xl border border-white/10 text-center space-y-3">
+            <ShoppingBag className="w-10 h-10 text-cyan-400/60 mx-auto" />
+            <h3 className="text-base font-bold text-white">No 3D Models Listed Yet</h3>
+            <p className="text-xs text-slate-400 max-w-md mx-auto">
+              Our 5th grade makers are currently designing new items. Lab admins can add custom models and photos inside the Admin Vault.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {featuredProducts.map((product) => (
+              <div
+                key={product.id}
+                className="liquid-glass-card rounded-2xl overflow-hidden flex flex-col group border border-white/15"
+              >
+                {/* Product Image preview */}
+                <div className="relative h-48 w-full overflow-hidden bg-slate-900">
+                  <img
+                    src={product.image}
+                    alt={product.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
 
-                {/* Badges */}
-                <div className="absolute top-3 left-3 flex flex-wrap gap-2">
-                  {product.isSeasonal && (
-                    <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/80 text-amber-100 backdrop-blur-md border border-amber-300/40 shadow-sm flex items-center gap-1">
-                      <Sparkles className="w-3 h-3" /> Seasonal
-                    </span>
-                  )}
-                  {!product.inStock ? (
-                    <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-rose-600/80 text-white backdrop-blur-md border border-rose-400/40 shadow-sm">
-                      Out of Stock
-                    </span>
-                  ) : (
-                    <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/80 text-white backdrop-blur-md border border-emerald-300/40 shadow-sm flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3" /> Ready to Print
-                    </span>
-                  )}
+                  {/* Badges */}
+                  <div className="absolute top-3 left-3 flex flex-wrap gap-2">
+                    {product.isSeasonal && (
+                      <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/80 text-amber-100 backdrop-blur-md border border-amber-300/40 shadow-sm flex items-center gap-1">
+                        <Sparkles className="w-3 h-3" /> Seasonal
+                      </span>
+                    )}
+                    {!product.inStock ? (
+                      <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-rose-600/80 text-white backdrop-blur-md border border-rose-400/40 shadow-sm">
+                        Out of Stock
+                      </span>
+                    ) : (
+                      <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/80 text-white backdrop-blur-md border border-emerald-300/40 shadow-sm flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3" /> Ready to Print
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Price pill */}
+                  <div className="absolute bottom-3 right-3 px-3 py-1 rounded-xl liquid-glass border border-white/25 text-white font-display font-bold text-sm shadow-md">
+                    ${product.price.toFixed(2)}
+                  </div>
                 </div>
 
-                {/* Price pill */}
-                <div className="absolute bottom-3 right-3 px-3 py-1 rounded-xl liquid-glass border border-white/25 text-white font-display font-bold text-sm shadow-md">
-                  ${product.price.toFixed(2)}
-                </div>
-              </div>
-
-              {/* Product Details */}
-              <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                <div>
-                  <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
-                    <span>{product.material || 'School-Safe PLA'}</span>
-                    <div className="flex items-center gap-1 text-amber-400 font-semibold">
-                      <Star className="w-3.5 h-3.5 fill-amber-400" />
-                      <span>{product.rating || '5.0'}</span>
-                      <span className="text-slate-500">({product.reviews ? product.reviews.length : 0})</span>
+                {/* Product Details */}
+                <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                  <div>
+                    <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
+                      <span>{product.material || 'School-Safe PLA'}</span>
+                      <div className="flex items-center gap-1 text-amber-400 font-semibold">
+                        <Star className="w-3.5 h-3.5 fill-amber-400" />
+                        <span>{product.rating || '5.0'}</span>
+                        <span className="text-slate-500">({product.reviews ? product.reviews.length : 0})</span>
+                      </div>
                     </div>
-                  </div>
-                  <h3 className="text-lg font-bold font-display text-white group-hover:text-cyan-300 transition-colors">
-                    {product.title}
-                  </h3>
-                  <p className="text-xs text-slate-300 line-clamp-2 mt-1">
-                    {product.description}
-                  </p>
-                </div>
-
-                <div className="pt-2 border-t border-white/10 flex items-center justify-between gap-3">
-                  <div className="text-xs text-cyan-300 font-medium">
-                    Credit cost: <span className="font-bold text-white">{product.creditCost || Math.round(product.price * 10)}</span> credits
+                    <h3 className="text-lg font-bold font-display text-white group-hover:text-cyan-300 transition-colors">
+                      {product.title}
+                    </h3>
+                    <p className="text-xs text-slate-300 line-clamp-2 mt-1">
+                      {product.description}
+                    </p>
                   </div>
 
-                  <button
-                    onClick={() => handlePreorder(product)}
-                    disabled={!product.inStock}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                      product.inStock
-                        ? 'glass-btn-primary text-white shadow-sm hover:scale-105'
-                        : 'bg-white/5 text-slate-500 cursor-not-allowed border border-white/5'
-                    }`}
-                  >
-                    <span>Preorder</span>
-                    <ArrowRight className="w-3 h-3" />
-                  </button>
+                  <div className="pt-2 border-t border-white/10 flex items-center justify-between gap-3">
+                    <div className="text-xs text-cyan-300 font-medium">
+                      Credit cost: <span className="font-bold text-white">{product.creditCost || Math.round(product.price * 10)}</span> credits
+                    </div>
+
+                    <button
+                      onClick={() => handlePreorder(product)}
+                      disabled={!product.inStock}
+                      className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                        product.inStock
+                          ? 'glass-btn-primary text-white shadow-sm hover:scale-105'
+                          : 'bg-white/5 text-slate-500 cursor-not-allowed border border-white/5'
+                      }`}
+                    >
+                      <span>Preorder</span>
+                      <ArrowRight className="w-3 h-3" />
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Feature Pillars: Liquid Glass Card Row */}

@@ -51,7 +51,7 @@ export const VaultModal = () => {
       setPasscodeError('');
       setEnteredPasscode('');
     } else {
-      setPasscodeError('Invalid Vault Access Key. Check with 5th Grade Maker Admin or use 9248');
+      setPasscodeError('Invalid Vault Access Key. Please enter the authorized password.');
     }
   };
 
@@ -165,7 +165,7 @@ export const VaultModal = () => {
             <div className="space-y-2">
               <h2 className="text-2xl font-bold font-display text-white">Vault is Locked</h2>
               <p className="text-xs text-slate-300">
-                Please enter either of the two Vault Passwords (e.g. <span className="font-mono text-cyan-300 font-bold">9248</span> or admin key) to open the control deck.
+                Please enter the authorized Vault Password to open the control deck.
               </p>
             </div>
 
@@ -175,7 +175,7 @@ export const VaultModal = () => {
                 required
                 value={enteredPasscode}
                 onChange={(e) => setEnteredPasscode(e.target.value)}
-                placeholder="Enter Vault Password or 9248..."
+                placeholder="Enter Vault Password..."
                 className="w-full glass-input text-center rounded-2xl py-3 px-4 text-base tracking-widest text-cyan-200 border-purple-400/40"
               />
 

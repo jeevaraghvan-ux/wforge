@@ -71,7 +71,7 @@ export const ChatbotModal = () => {
     if (q.includes('access wf0rg3') || q.includes('access j33v4') || q.includes('access wforge') || q.includes('access jeeva')) {
       setIsWaitingForCode(true);
       return {
-        text: `🔐 VIP Clearance Recognized!\n\nPlease put in the 4-digit code (9248) to unlock and enter the Admin Vault:`,
+        text: `🔐 VIP Clearance Recognized!\n\nPlease enter the authorized admin clearance passcode to unlock the Admin Vault:`,
         isCodePrompt: true
       };
     }
@@ -82,20 +82,17 @@ export const ChatbotModal = () => {
         setIsWaitingForCode(false);
         setSecretUnlocked(true);
         setIsAdminVaultLocked(false);
-        if (currentUser) {
-          addRewardPointsToUser(currentUser.email, 50);
-        }
         try {
           confetti({ particleCount: 90, spread: 80 });
         } catch (e) {}
 
         return {
-          text: `🎉 ACCESS GRANTED [CODE: 9248]!\n\nWelcome Lead Maker / Admin! The Admin Vault is now UNLOCKED.\n• You can create new product listings with image uploads directly in the Vault interface yourself.\n• Manage student orders, credit banks, and delivery points.\n• +50 Bonus Reward Points added!`,
+          text: `🎉 ACCESS GRANTED!\n\nWelcome Lead Maker / Admin! The Admin Vault is now UNLOCKED.\n• You can create new product listings with image uploads directly in the Vault interface yourself.\n• Manage student orders, credit banks, and delivery points.`,
           showVaultButton: true
         };
       } else {
         return {
-          text: `❌ Incorrect code. The put in code is 9248. Type 9248 to unlock the Admin Vault!`
+          text: `❌ Incorrect clearance passcode. Access denied.`
         };
       }
     }
@@ -104,11 +101,8 @@ export const ChatbotModal = () => {
     if (q.trim() === '9248') {
       setSecretUnlocked(true);
       setIsAdminVaultLocked(false);
-      if (currentUser) {
-        addRewardPointsToUser(currentUser.email, 50);
-      }
       return {
-        text: `⚡ Code 9248 Verified! Admin Vault unlocked. Click below to enter the Vault interface!`,
+        text: `⚡ Clearance Verified! Admin Vault unlocked. Click below to enter the Vault interface!`,
         showVaultButton: true
       };
     }
@@ -116,7 +110,7 @@ export const ChatbotModal = () => {
     // If user asks how to get to admin vault
     if (q.includes('admin') || q.includes('admin vault') || q.includes('how to get to admin')) {
       return {
-        text: `🛡️ Security Notice:\nThe Admin Vault is strictly private and cannot be accessed from the home page or navbar!\n\nTo access the Admin Vault, enter the clearance phrase "Access WF0RG3" or "Access J33V4", then put in the code 9248.`
+        text: `🛡️ Security Notice:\nThe Admin Vault is strictly private and cannot be accessed from the home page or navbar!\n\nAuthorized admins can enter their clearance phrase and passcode in this terminal.`
       };
     }
 
@@ -238,7 +232,7 @@ export const ChatbotModal = () => {
                 </h3>
                 {secretUnlocked && (
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/30 text-purple-200 border border-purple-400/50 font-bold">
-                    VIP 9248 Active
+                    VIP Clearance Active
                   </span>
                 )}
               </div>
@@ -267,12 +261,6 @@ export const ChatbotModal = () => {
               <X className="w-5 h-5" />
             </button>
           </div>
-        </div>
-
-        {/* Secret Code Quick Bar */}
-        <div className="px-4 py-1.5 bg-cyan-950/40 border-b border-white/5 flex items-center justify-between text-[11px] text-slate-300">
-          <span>Secret Access: <code className="text-cyan-300 font-bold">Access WF0RG3</code> or <code className="text-cyan-300 font-bold">Access J33V4</code></span>
-          <span className="text-purple-300 font-mono">Code: 9248</span>
         </div>
 
         {/* Message Log */}
@@ -317,7 +305,7 @@ export const ChatbotModal = () => {
             type="text"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            placeholder={isWaitingForCode ? "Enter code 9248..." : "Ask anything about 3D printing, filaments, orders..."}
+            placeholder={isWaitingForCode ? "Enter clearance passcode..." : "Ask anything about 3D printing, filaments, orders..."}
             className="glass-input rounded-2xl px-4 py-2.5 text-xs sm:text-sm flex-1 text-white placeholder:text-slate-400"
           />
           <button

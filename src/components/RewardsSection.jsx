@@ -207,12 +207,12 @@ export const RewardsSection = () => {
 
             <div className="p-3 rounded-xl bg-white/5 border border-white/5 flex items-start gap-3">
               <div className="p-2 rounded-lg bg-purple-500/20 text-purple-400 font-bold font-mono">
-                +50
+                +20
               </div>
               <div>
                 <div className="font-bold text-white">Bot Secret Codes</div>
                 <div className="text-slate-400 text-[11px] mt-0.5">
-                  Unlock secret maker codes like <code className="text-purple-300 font-mono">9248</code> in our interactive chatbot!
+                  Discover special maker codes in our interactive chatbot!
                 </div>
               </div>
             </div>

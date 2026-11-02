@@ -11,8 +11,8 @@ const getInitialSupabaseConfig = () => {
     // ignore
   }
   return {
-    url: import.meta.env.VITE_SUPABASE_URL || '',
-    anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+    url: import.meta.env.VITE_SUPABASE_URL || import.meta.env.NEXT_PUBLIC_SUPABASE_URL || 'https://opajjftspvftmebwratn.supabase.co',
+    anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9wYWpqZnRzcHZmdG1lYndyYXRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1NzE4MDIsImV4cCI6MjEwOTE0NzgwMn0.tFKc1KvknlFn6c0vmje537fSfL-B4-tA3czdsWj3uz8'
   };
 };
 

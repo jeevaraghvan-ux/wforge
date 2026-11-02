@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { useStore } from '../context/StoreContext';
 import { Logo } from './Logo';
 import { 
-  signInWithGooglePopup, 
-  isFirebaseConfigured, 
-  updateFirebaseConfig, 
-  firebaseConfig 
-} from '../firebase';
+  signInWithGoogleSupabase, 
+  isSupabaseConfigured, 
+  updateSupabaseConfig, 
+  supabaseConfig 
+} from '../supabase';
 import { 
   CheckCircle2, 
   AlertCircle, 
@@ -32,70 +32,41 @@ export const AccountSection = () => {
 
   const [authError, setAuthError] = useState('');
   const [authSuccess, setAuthSuccess] = useState('');
-  const [showFirebaseConfig, setShowFirebaseConfig] = useState(false);
-  const [firebaseJsonInput, setFirebaseJsonInput] = useState('');
-  const [isFirebaseConfiguredState, setIsFirebaseConfiguredState] = useState(isFirebaseConfigured());
+  const [showConfig, setShowConfig] = useState(false);
+  const [supabaseUrlInput, setSupabaseUrlInput] = useState(supabaseConfig.url || '');
+  const [supabaseKeyInput, setSupabaseKeyInput] = useState(supabaseConfig.anonKey || '');
+  const [isConfigured, setIsConfigured] = useState(isSupabaseConfigured());
 
-  // Direct Firebase Google Sign-In: Sole verification & authentication method
-  const handleDirectGoogleSignIn = async () => {
+  // Supabase Google Sign-In
+  const handleGoogleSignIn = async () => {
     setAuthError('');
-    if (!isFirebaseConfigured()) {
-      setShowFirebaseConfig(true);
-      setAuthError('Firebase credentials are required for Google Sign-In. Please paste your config below.');
+    if (!isSupabaseConfigured()) {
+      setShowConfig(true);
+      setAuthError('Supabase project credentials are required. Please paste your Supabase Project URL and Anon Key below.');
       return;
     }
     try {
-      const user = await signInWithGooglePopup();
-      if (user) {
-        const existing = users.find(u => u.email.toLowerCase() === user.email.toLowerCase());
-        if (existing) {
-          setCurrentUser(existing);
-        } else {
-          const newGoogleUser = {
-            id: user.uid || 'user-' + Date.now(),
-            name: user.displayName || user.email.split('@')[0],
-            email: user.email.toLowerCase(),
-            photoURL: user.photoURL,
-            points: 10,
-            verified: true,
-            role: 'student',
-            credits: 20
-          };
-          setUsers(prev => [...prev, newGoogleUser]);
-          setCurrentUser(newGoogleUser);
-        }
-        setAuthSuccess(`Signed in with Google as ${user.displayName || user.email}!`);
-      }
+      setAuthSuccess('Redirecting to Google Sign-In...');
+      await signInWithGoogleSupabase();
     } catch (err) {
-      if (err.code === 'auth/popup-closed-by-user') {
-        setAuthError('Google sign-in popup was closed.');
-      } else if (err.code === 'auth/unauthorized-domain') {
-        setAuthError('Domain unauthorized: Add this domain in Firebase Console -> Authentication -> Settings -> Authorized domains.');
-      } else {
-        setAuthError(err.message || 'Firebase Google Sign-In error.');
-      }
+      setAuthError(err.message || 'Google Sign-In failed.');
     }
   };
 
-  const handleSaveFirebaseConfig = () => {
-    try {
-      let parsed = {};
-      const trimmed = firebaseJsonInput.trim();
-      if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
-        parsed = JSON.parse(trimmed);
-      } else if (trimmed) {
-        parsed = { apiKey: trimmed };
-      }
-      if (parsed.apiKey) {
-        updateFirebaseConfig(parsed);
-        setIsFirebaseConfiguredState(true);
-        setAuthSuccess('Firebase configuration saved successfully! Google Sign-In is ready.');
-        setTimeout(() => setAuthSuccess(''), 3000);
-      } else {
-        setAuthError('Please paste a valid Firebase configuration or API Key.');
-      }
-    } catch (err) {
-      setAuthError('Invalid configuration: ' + err.message);
+  const handleSaveConfig = () => {
+    const url = supabaseUrlInput.trim();
+    const key = supabaseKeyInput.trim();
+    if (!url.startsWith('https://') || !key) {
+      setAuthError('Please enter a valid Supabase Project URL (e.g. https://xxx.supabase.co) and Anon Key.');
+      return;
+    }
+    const success = updateSupabaseConfig({ url, anonKey: key });
+    if (success) {
+      setIsConfigured(true);
+      setAuthSuccess('Supabase configured successfully! Click Sign in with Google.');
+      setTimeout(() => setAuthSuccess(''), 3000);
+    } else {
+      setAuthError('Failed to save Supabase config.');
     }
   };
 
@@ -200,7 +171,7 @@ export const AccountSection = () => {
             </div>
           </div>
 
-          {/* User Orders list with Final Price to Pay */}
+          {/* User Orders list */}
           <div className="space-y-3 pt-2">
             <h3 className="text-base font-bold font-display text-white flex items-center gap-2">
               <Package className="w-4 h-4 text-cyan-400" />
@@ -266,7 +237,7 @@ export const AccountSection = () => {
     );
   }
 
-  // IF NOT SIGNED IN: DEDICATED SOLE GOOGLE AUTHENTICATION & VERIFICATION VIEW
+  // IF NOT SIGNED IN: DEDICATED SOLE GOOGLE AUTHENTICATION VIEW (SUPABASE)
   return (
     <div className="py-12 px-4 sm:px-8 max-w-xl mx-auto space-y-8 animate-fade-in">
       <div className="liquid-glass rounded-3xl p-6 sm:p-10 border border-white/20 shadow-2xl relative overflow-hidden">
@@ -303,11 +274,11 @@ export const AccountSection = () => {
             </div>
           </div>
 
-          {/* DIRECT GOOGLE SIGN-IN BUTTON */}
+          {/* GOOGLE SIGN-IN BUTTON */}
           <div className="space-y-3 pt-3">
             <button
               type="button"
-              onClick={handleDirectGoogleSignIn}
+              onClick={handleGoogleSignIn}
               className="w-full py-4 px-6 rounded-2xl liquid-glass border border-cyan-400/50 hover:border-cyan-300 bg-white/10 hover:bg-white/15 flex items-center justify-center gap-3 transition-all text-base font-bold text-white group shadow-glass-glow hover:scale-[1.02]"
             >
               <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
@@ -351,38 +322,46 @@ export const AccountSection = () => {
             <span>Only Google Accounts are supported for safety & verified identity.</span>
           </div>
 
-          {/* Optional Firebase Credentials config */}
+          {/* Supabase Credentials config */}
           <div className="pt-4 border-t border-white/10 text-center">
             <button
               type="button"
-              onClick={() => setShowFirebaseConfig(!showFirebaseConfig)}
+              onClick={() => setShowConfig(!showConfig)}
               className="text-[11px] text-slate-400 hover:text-cyan-300 inline-flex items-center gap-1"
             >
               <Settings className="w-3 h-3" />
-              <span>{showFirebaseConfig ? 'Hide Firebase Settings' : 'Configure Firebase Connection'}</span>
+              <span>{showConfig ? 'Hide Supabase Settings' : 'Configure Supabase Connection'}</span>
             </button>
 
-            {showFirebaseConfig && (
-              <div className="mt-3 p-4 rounded-2xl bg-slate-900/90 border border-white/15 text-left space-y-2 text-xs">
-                <div className="text-slate-200 font-semibold text-[11px]">Firebase Project Config:</div>
-                <div className="text-[10px] text-slate-400">
-                  Project: <span className="font-mono text-cyan-300">{firebaseConfig.projectId}</span>
-                  <br />
-                  Auth Domain: <span className="font-mono text-cyan-300">{firebaseConfig.authDomain}</span>
+            {showConfig && (
+              <div className="mt-3 p-4 rounded-2xl bg-slate-900/90 border border-white/15 text-left space-y-2.5 text-xs">
+                <div className="text-slate-200 font-semibold text-[11px]">Supabase Project Credentials:</div>
+                <div>
+                  <label className="text-[10px] text-slate-400 block mb-1">Project URL:</label>
+                  <input
+                    type="text"
+                    value={supabaseUrlInput}
+                    onChange={(e) => setSupabaseUrlInput(e.target.value)}
+                    placeholder="https://your-project.supabase.co"
+                    className="glass-input rounded-xl px-3 py-2 text-xs w-full font-mono text-cyan-200"
+                  />
                 </div>
-                <textarea
-                  rows={3}
-                  value={firebaseJsonInput}
-                  onChange={(e) => setFirebaseJsonInput(e.target.value)}
-                  placeholder={`{\n  "apiKey": "AIzaSy...",\n  "authDomain": "..."\n}`}
-                  className="glass-input rounded-xl p-2.5 text-xs w-full font-mono text-[11px] text-cyan-200 resize-none"
-                />
+                <div>
+                  <label className="text-[10px] text-slate-400 block mb-1">Anon / Public API Key:</label>
+                  <input
+                    type="password"
+                    value={supabaseKeyInput}
+                    onChange={(e) => setSupabaseKeyInput(e.target.value)}
+                    placeholder="eyJhbGciOi..."
+                    className="glass-input rounded-xl px-3 py-2 text-xs w-full font-mono text-cyan-200"
+                  />
+                </div>
                 <button
                   type="button"
-                  onClick={handleSaveFirebaseConfig}
+                  onClick={handleSaveConfig}
                   className="w-full py-2 rounded-xl bg-cyan-500 text-slate-950 font-bold text-xs"
                 >
-                  Save Config
+                  Save Supabase Config
                 </button>
               </div>
             )}

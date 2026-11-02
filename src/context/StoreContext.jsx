@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase, isSupabaseConfigured } from '../supabase';
 
 const StoreContext = createContext();
 
@@ -195,6 +196,72 @@ export const StoreProvider = ({ children }) => {
       localStorage.removeItem('wforge_current_user');
     }
   }, [currentUser]);
+
+  // Listen to Supabase auth state changes (e.g. on return from Google OAuth)
+  useEffect(() => {
+    if (supabase && isSupabaseConfigured()) {
+      // Check current session
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session?.user) {
+          const user = session.user;
+          const userEmail = (user.email || '').toLowerCase();
+          setUsers(prev => {
+            const existing = prev.find(u => u.email.toLowerCase() === userEmail);
+            if (existing) {
+              setCurrentUser(existing);
+              return prev;
+            } else {
+              const newSupabaseUser = {
+                id: user.id || 'user-' + Date.now(),
+                name: user.user_metadata?.full_name || user.user_metadata?.name || userEmail.split('@')[0],
+                email: userEmail,
+                photoURL: user.user_metadata?.avatar_url,
+                points: 10,
+                verified: true,
+                role: 'student',
+                credits: 20
+              };
+              setCurrentUser(newSupabaseUser);
+              return [...prev, newSupabaseUser];
+            }
+          });
+        }
+      });
+
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN' && session?.user) {
+          const user = session.user;
+          const userEmail = (user.email || '').toLowerCase();
+          setUsers(prev => {
+            const existing = prev.find(u => u.email.toLowerCase() === userEmail);
+            if (existing) {
+              setCurrentUser(existing);
+              return prev;
+            } else {
+              const newSupabaseUser = {
+                id: user.id || 'user-' + Date.now(),
+                name: user.user_metadata?.full_name || user.user_metadata?.name || userEmail.split('@')[0],
+                email: userEmail,
+                photoURL: user.user_metadata?.avatar_url,
+                points: 10,
+                verified: true,
+                role: 'student',
+                credits: 20
+              };
+              setCurrentUser(newSupabaseUser);
+              return [...prev, newSupabaseUser];
+            }
+          });
+        } else if (event === 'SIGNED_OUT') {
+          setCurrentUser(null);
+        }
+      });
+
+      return () => {
+        subscription?.unsubscribe();
+      };
+    }
+  }, []);
 
   // Email sender using Resend / Gmail WForge10@gmail.com
   const sendEmail = ({ to, subject, html, text }) => {
